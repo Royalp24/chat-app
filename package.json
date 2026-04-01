@@ -1,0 +1,30 @@
+{
+  "name": "ephemeral-chat",
+  "version": "1.0.0",
+  "description": "A modern real-time ephemeral chat application with invitation codes",
+  "main": "backend/server.js",
+  "scripts": {
+    "backend": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend run dev",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend:build": "npm --prefix backend install",
+    "frontend:build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "build": "npm run backend:build && npm run frontend:build"
+  },
+  "keywords": [
+    "chat",
+    "ephemeral",
+    "real-time",
+    "websocket",
+    "socket.io"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/chat-app.git"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

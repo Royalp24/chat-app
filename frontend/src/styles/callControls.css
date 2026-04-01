@@ -1,0 +1,138 @@
+.call-controls {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.call-controls-container {
+  display: flex;
+  gap: 12px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  backdrop-filter: none;
+}
+
+.control-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 20px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.control-btn svg {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.5));
+}
+
+.control-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.control-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.control-btn.off {
+  background: rgba(244, 67, 54, 0.3);
+  border-color: rgba(244, 67, 54, 0.5);
+}
+
+.control-btn.off:hover {
+  background: rgba(244, 67, 54, 0.5);
+}
+
+.control-btn.end-call {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  width: 64px;
+  height: 64px;
+  box-shadow: 0 4px 20px rgba(244, 67, 54, 0.4);
+  border: none;
+}
+
+.control-btn.end-call:hover {
+  background: linear-gradient(135deg, #d32f2f, #c62828);
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px rgba(244, 67, 54, 0.6);
+}
+
+.control-btn.end-call svg {
+  width: 28px;
+  height: 28px;
+}
+
+/* Tooltip */
+.control-btn[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 70px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .call-controls {
+    bottom: 20px;
+  }
+
+  .control-btn {
+    width: 50px;
+    height: 50px;
+  }
+
+  .control-btn.end-call {
+    width: 56px;
+    height: 56px;
+  }
+
+  .control-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .control-btn.end-call svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .call-controls-container {
+    gap: 8px;
+  }
+
+  .control-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .control-btn.end-call {
+    width: 48px;
+    height: 48px;
+  }
+}
