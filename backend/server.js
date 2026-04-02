@@ -520,6 +520,25 @@ io.on('connection', (socket) => {
       return;
     }
 
+    // Only the initiator can end the call for everyone
+    if (call.initiator !== userSession.username) {
+      // If not initiator, just leave the call
+      callManager.removeParticipant(code, userSession.username);
+      const updatedCall = callManager.getCall(code);
+      if (updatedCall) {
+        io.to(code).emit(SOCKET_EVENTS.CALL_PARTICIPANT_LEFT, {
+          username: userSession.username,
+          participants: updatedCall.participants,
+        });
+      } else {
+        io.to(code).emit(SOCKET_EVENTS.CALL_ENDED, {
+          callId: call.id,
+          endedBy: userSession.username,
+        });
+      }
+      return;
+    }
+
     callManager.endCall(code);
 
     io.to(code).emit(SOCKET_EVENTS.CALL_ENDED, {
@@ -528,6 +547,40 @@ io.on('connection', (socket) => {
     });
 
     console.log(`[CALL] Call ended in session ${code} by ${userSession.username}`);
+  });
+
+  // ========== LEAVE CALL (Guest) ==========
+  socket.on(SOCKET_EVENTS.CALL_PARTICIPANT_LEFT, (data) => {
+    const { code } = data;
+    const userSession = userSessions.get(socket.id);
+
+    if (!userSession || userSession.code !== code) {
+      return;
+    }
+
+    const call = callManager.getCall(code);
+    if (!call) {
+      return;
+    }
+
+    console.log(`[CALL] ${userSession.username} left call in session ${code}`);
+
+    callManager.removeParticipant(code, userSession.username);
+    const updatedCall = callManager.getCall(code);
+
+    if (updatedCall) {
+      // Call still has participants, notify others
+      io.to(code).emit(SOCKET_EVENTS.CALL_PARTICIPANT_LEFT, {
+        username: userSession.username,
+        participants: updatedCall.participants,
+      });
+    } else {
+      // No more participants, call ended
+      io.to(code).emit(SOCKET_EVENTS.CALL_ENDED, {
+        callId: call.id,
+        endedBy: userSession.username,
+      });
+    }
   });
 
   // ========== OFFER ==========

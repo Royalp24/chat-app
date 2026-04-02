@@ -1,25 +1,29 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useSocket } from '../hooks/useSocket';
 import { SOCKET_EVENTS } from '../utils/socketEvents';
 import { useWebRTC } from '../hooks/useWebRTC';
 
 const CallContext = createContext(null);
 
-export function CallProvider({ children, sessionCode, username }) {
+export function CallProvider({ children, sessionCode, username, isCreator }) {
    const { socket, emit } = useSocket();
    
    const [callState, setCallState] = useState('idle');
    const [callError, setCallError] = useState(null);
+   const callStateRef = useRef('idle');
    
-   // Store username in state so it's accessible throughout the context
    const [currentUsername] = useState(username);
    const [currentCall, setCurrentCall] = useState(null);
    const [incomingCall, setIncomingCall] = useState(null);
    const [callParticipants, setCallParticipants] = useState([]);
    const [isVideoEnabled, setIsVideoEnabled] = useState(true);
    const [isAudioEnabled, setIsAudioEnabled] = useState(true);
-   // eslint-disable-next-line no-unused-vars
    const [isScreenSharing, setIsScreenSharing] = useState(false);
+   
+   const setCallStateSync = useCallback((state) => {
+     callStateRef.current = state;
+     setCallState(state);
+   }, []);
 
   const {
     localStream,
@@ -40,9 +44,8 @@ export function CallProvider({ children, sessionCode, username }) {
      try {
        setCallError(null);
        await getLocalStream(true, true);
-       // Add creator to participants list
        setCallParticipants([currentUsername]);
-       setCallState('connected');
+       setCallStateSync('connected');
        emit(SOCKET_EVENTS.CALL_INITIATED, { code: sessionCode });
      } catch (error) {
        console.error('[Call] Error initiating call:', error);
@@ -57,15 +60,15 @@ export function CallProvider({ children, sessionCode, username }) {
        }
        
        setCallError(errorMessage);
-       setCallState('idle');
+       setCallStateSync('idle');
      }
-   }, [getLocalStream, emit, sessionCode, currentUsername]);
+   }, [getLocalStream, emit, sessionCode, currentUsername, setCallStateSync]);
 
    const acceptCall = useCallback(async () => {
      try {
        setCallError(null);
        await getLocalStream(true, true);
-       setCallState('connected');
+       setCallStateSync('connected');
        
        emit(SOCKET_EVENTS.CALL_ACCEPTED, {
          code: sessionCode,
@@ -86,9 +89,9 @@ export function CallProvider({ children, sessionCode, username }) {
        }
        
        setCallError(errorMessage);
-       setCallState('idle');
+       setCallStateSync('idle');
      }
-   }, [getLocalStream, emit, sessionCode, incomingCall]);
+   }, [getLocalStream, emit, sessionCode, incomingCall, setCallStateSync]);
 
   const declineCall = useCallback(() => {
     if (incomingCall) {
@@ -104,48 +107,61 @@ export function CallProvider({ children, sessionCode, username }) {
      emit(SOCKET_EVENTS.CALL_ENDED, { code: sessionCode });
      disconnectAll();
      stopLocalStream();
-     setCallState('idle');
+     setCallStateSync('idle');
      setCurrentCall(null);
      setCallParticipants([]);
      setIsVideoEnabled(true);
      setIsAudioEnabled(true);
      setCallError(null);
-   }, [emit, sessionCode, disconnectAll, stopLocalStream]);
+   }, [emit, sessionCode, disconnectAll, stopLocalStream, setCallStateSync]);
+
+   const leaveCall = useCallback(() => {
+     emit(SOCKET_EVENTS.CALL_PARTICIPANT_LEFT, { code: sessionCode, username: currentUsername });
+     disconnectAll();
+     stopLocalStream();
+     setCallStateSync('idle');
+     setCurrentCall(null);
+     setCallParticipants([]);
+     setIsVideoEnabled(true);
+     setIsAudioEnabled(true);
+     setCallError(null);
+   }, [emit, sessionCode, currentUsername, disconnectAll, stopLocalStream, setCallStateSync]);
 
   const handleCallInvitation = useCallback((data) => {
     setIncomingCall(data);
   }, []);
 
-  const handleCallParticipantJoined = useCallback((data) => {
-    setCallParticipants(data.participants);
-    
-    if (callState === 'connected') {
-      const newParticipants = data.participants.filter(
-        p => !getPeers()[p] && p !== username
-      );
-      newParticipants.forEach(p => connectToPeer(p));
-    }
-  }, [callState, getPeers, connectToPeer, username]);
+   const handleCallParticipantJoined = useCallback((data) => {
+     setCallParticipants(data.participants);
+     
+     if (callStateRef.current === 'connected') {
+       const newParticipants = data.participants.filter(
+         p => !getPeers()[p] && p !== username
+       );
+       console.log('[CALL] Connecting to new participants:', newParticipants);
+       newParticipants.forEach(p => connectToPeer(p));
+     }
+   }, [getPeers, connectToPeer, username]);
 
   const handleCallParticipantLeft = useCallback((data) => {
     setCallParticipants(data.participants || []);
     disconnectFromPeer(data.username);
   }, [disconnectFromPeer]);
 
-  const handleCallEnded = useCallback(() => {
-    disconnectAll();
-    stopLocalStream();
-    setCallState('idle');
-    setCurrentCall(null);
-    setCallParticipants([]);
-    setIncomingCall(null);
-  }, [disconnectAll, stopLocalStream]);
+   const handleCallEnded = useCallback(() => {
+     disconnectAll();
+     stopLocalStream();
+     setCallStateSync('idle');
+     setCurrentCall(null);
+     setCallParticipants([]);
+     setIncomingCall(null);
+   }, [disconnectAll, stopLocalStream, setCallStateSync]);
 
-  const handleCallDeclined = useCallback(() => {
-    if (callState === 'calling') {
-      endCall();
-    }
-  }, [callState, endCall]);
+   const handleCallDeclined = useCallback(() => {
+     if (callStateRef.current === 'calling') {
+       endCall();
+     }
+   }, [endCall]);
 
   const handleOfferSignal = useCallback(async (data) => {
     await handleOffer(data.offer, data.fromUsername);
@@ -194,11 +210,12 @@ export function CallProvider({ children, sessionCode, username }) {
   ]);
 
   useEffect(() => {
-    if (callState === 'connected' && callParticipants.length > 0) {
+    if (callStateRef.current === 'connected' && callParticipants.length > 0) {
       callParticipants
         .filter(p => p !== username)
         .forEach(async (participant) => {
           if (!getPeers()[participant]) {
+            console.log('[CALL] Connecting to participant:', participant);
             await connectToPeer(participant);
           }
         });
@@ -226,14 +243,16 @@ export function CallProvider({ children, sessionCode, username }) {
      isScreenSharing,
      localStream,
      username: currentUsername,
+     isCreator,
      getPeers,
      initiateCall,
      acceptCall,
      declineCall,
      endCall,
+     leaveCall,
      toggleVideoEnabled,
      toggleAudioEnabled,
-     setCallState,
+     setCallState: setCallStateSync,
      setCurrentCall,
      setCallParticipants,
    };
