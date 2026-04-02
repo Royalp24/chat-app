@@ -7,6 +7,7 @@ export function useWebRTC({ sessionCode, username, emit }) {
    const peersRef = useRef({});
    const peerConnectionsRef = useRef({});
    const [localStream, setLocalStream] = useState(null);
+   const [remoteStreams, setRemoteStreams] = useState({});
 
   const getLocalStream = useCallback(async (videoEnabled = true, audioEnabled = true) => {
     try {
@@ -44,12 +45,20 @@ export function useWebRTC({ sessionCode, username, emit }) {
 
     pc.ontrack = (event) => {
       const remoteStream = event.streams[0];
-      if (peersRef.current[targetUsername]?.stream !== remoteStream) {
-        peersRef.current[targetUsername] = {
-          ...peersRef.current[targetUsername],
-          stream: remoteStream,
-        };
-      }
+      console.log('[WebRTC] Received remote track from:', targetUsername);
+      peersRef.current[targetUsername] = {
+        ...peersRef.current[targetUsername],
+        stream: remoteStream,
+      };
+      // Update state to trigger re-render
+      setRemoteStreams(prev => ({
+        ...prev,
+        [targetUsername]: remoteStream,
+      }));
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      console.log('[WebRTC] ICE connection state for', targetUsername, ':', pc.iceConnectionState);
     };
 
     peerConnectionsRef.current[targetUsername] = pc;
@@ -57,6 +66,7 @@ export function useWebRTC({ sessionCode, username, emit }) {
   }, [sessionCode, emit]);
 
    const handleOffer = useCallback(async (offer, fromUsername) => {
+     console.log('[WebRTC] Handling offer from:', fromUsername);
      let pc = peerConnectionsRef.current[fromUsername];
      if (!pc) {
        pc = createPeerConnection(fromUsername);
@@ -74,6 +84,7 @@ export function useWebRTC({ sessionCode, username, emit }) {
    }, [createPeerConnection, emit, sessionCode]);
 
   const handleAnswer = useCallback(async (answer, fromUsername) => {
+    console.log('[WebRTC] Handling answer from:', fromUsername);
     const pc = peerConnectionsRef.current[fromUsername];
     if (pc) {
       await pc.setRemoteDescription(new RTCSessionDescription(answer));
@@ -92,6 +103,7 @@ export function useWebRTC({ sessionCode, username, emit }) {
   }, []);
 
    const connectToPeer = useCallback(async (targetUsername) => {
+     console.log('[WebRTC] Connecting to peer:', targetUsername);
      let pc = peerConnectionsRef.current[targetUsername];
      if (!pc) {
        pc = createPeerConnection(targetUsername);
@@ -113,6 +125,11 @@ export function useWebRTC({ sessionCode, username, emit }) {
       pc.close();
       delete peerConnectionsRef.current[targetUsername];
       delete peersRef.current[targetUsername];
+      setRemoteStreams(prev => {
+        const next = { ...prev };
+        delete next[targetUsername];
+        return next;
+      });
     }
   }, []);
 
@@ -146,7 +163,17 @@ export function useWebRTC({ sessionCode, username, emit }) {
     }
   }, []);
 
-  const getPeers = useCallback(() => peersRef.current, []);
+  const getPeers = useCallback(() => {
+    // Merge refs with state for up-to-date streams
+    const peers = {};
+    for (const [username, peer] of Object.entries(peersRef.current)) {
+      peers[username] = {
+        ...peer,
+        stream: remoteStreams[username] || peer.stream,
+      };
+    }
+    return peers;
+  }, [remoteStreams]);
 
   useEffect(() => {
     return () => {

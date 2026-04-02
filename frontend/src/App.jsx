@@ -19,6 +19,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const hasRejoinedRef = useRef(false);
+  const isRejoiningRef = useRef(false);
 
   const saveSession = useCallback((code, name, creator) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -53,6 +54,7 @@ function App() {
         // Only rejoin for guests, not creators
         console.log('[APP] Found existing guest session, rejoining:', storedCode);
         hasRejoinedRef.current = true;
+        isRejoiningRef.current = true;
         setIsLoading(true);
         setSessionCode(storedCode);
         setUsername(storedName);
@@ -80,15 +82,19 @@ function App() {
     };
 
     const handleUserJoined = (data) => {
-      if (currentScreen === 'join' && sessionCode) {
+      // Check if we're joining or rejoining
+      if (isRejoiningRef.current || currentScreen === 'join') {
         setCurrentScreen('chat');
         setIsLoading(false);
+        isRejoiningRef.current = false;
         saveSession(sessionCode, username, false);
       }
     };
 
     const handleSessionClosed = () => {
       clearSession();
+      hasRejoinedRef.current = false;
+      isRejoiningRef.current = false;
       setCurrentScreen('landing');
       setSessionCode('');
       setUsername('');
@@ -97,8 +103,10 @@ function App() {
 
     const handleError = (data) => {
       // If rejoining failed, clear stored session and go to landing
-      if (hasRejoinedRef.current && currentScreen !== 'chat') {
+      if (isRejoiningRef.current) {
         clearSession();
+        hasRejoinedRef.current = false;
+        isRejoiningRef.current = false;
         setCurrentScreen('landing');
       }
       setError(data.message || 'An error occurred');
@@ -126,6 +134,7 @@ function App() {
     // Clear any old stored session
     clearSession();
     hasRejoinedRef.current = false;
+    isRejoiningRef.current = false;
     
     if (!isConnected) {
       console.log('[APP] Waiting for socket connection before creating session...');
@@ -159,6 +168,7 @@ function App() {
     // Clear any old stored session
     clearSession();
     hasRejoinedRef.current = false;
+    isRejoiningRef.current = false;
     
     if (!isConnected) {
       console.log('[APP] Waiting for socket connection before joining session...');
@@ -185,6 +195,7 @@ function App() {
   const handleSessionClose = () => {
     clearSession();
     hasRejoinedRef.current = false;
+    isRejoiningRef.current = false;
     setCurrentScreen('landing');
     setSessionCode('');
     setUsername('');
