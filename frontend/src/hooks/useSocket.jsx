@@ -7,17 +7,9 @@ export function SocketProvider({ children }) {
   const socketRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
 
-  useEffect(() => {
-    // Determine backend URL based on current location
-    let backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-    
-    // If accessing via localhost, use localhost backend
-    // If accessing via IP, use IP backend
-    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      // Accessing via IP address or domain name
-      backendUrl = `http://${window.location.hostname}:3001`;
-    }
-
+    useEffect(() => {
+    // Use environment variable if available, otherwise default to localhost
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
     socketRef.current = io(backendUrl, {
       reconnection: true,
       reconnectionDelay: 1000,
