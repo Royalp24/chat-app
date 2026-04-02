@@ -2,10 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "env": [
-    {
-      "key": "VITE_BACKEND_URL",
-      "description": "Backend API URL for production deployment"
-    }
-  ]
+  "env": {
+  "VITE_BACKEND_URL": "https://chat-app-qbga.onrender.com"
+}
 }
