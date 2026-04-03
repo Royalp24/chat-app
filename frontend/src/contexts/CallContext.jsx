@@ -27,6 +27,7 @@ export function CallProvider({ children, sessionCode, username, isCreator }) {
 
   const {
     localStream,
+    peerConnectionsRef,
     getLocalStream,
     handleOffer,
     handleAnswer,
@@ -133,15 +134,19 @@ export function CallProvider({ children, sessionCode, username, isCreator }) {
 
    const handleCallParticipantJoined = useCallback((data) => {
      setCallParticipants(data.participants);
-     
-     if (callStateRef.current === 'connected') {
+
+     // Only the CREATOR sends offers to new participants.
+     // Guests wait to receive the offer from the creator and respond with an answer.
+     // If both sides call connectToPeer simultaneously, offers collide and the
+     // connection dies. The creator is always the polite offerer.
+     if (isCreator && callStateRef.current === 'connected') {
        const newParticipants = data.participants.filter(
-         p => !getPeers()[p] && p !== username
+         p => !peerConnectionsRef.current[p] && p !== username
        );
-       console.log('[CALL] Connecting to new participants:', newParticipants);
+       console.log('[CALL] Creator connecting to new participants:', newParticipants);
        newParticipants.forEach(p => connectToPeer(p));
      }
-   }, [getPeers, connectToPeer, username]);
+   }, [isCreator, peerConnectionsRef, connectToPeer, username]);
 
   const handleCallParticipantLeft = useCallback((data) => {
     setCallParticipants(data.participants || []);
@@ -209,18 +214,8 @@ export function CallProvider({ children, sessionCode, username, isCreator }) {
     handleIceCandidateSignal,
   ]);
 
-  useEffect(() => {
-    if (callStateRef.current === 'connected' && callParticipants.length > 0) {
-      callParticipants
-        .filter(p => p !== username)
-        .forEach(async (participant) => {
-          if (!getPeers()[participant]) {
-            console.log('[CALL] Connecting to participant:', participant);
-            await connectToPeer(participant);
-          }
-        });
-    }
-  }, [callState, callParticipants, username, getPeers, connectToPeer]);
+  // NOTE: Peer connection initiation is handled exclusively in handleCallParticipantJoined
+  // by the creator. The duplicate useEffect that was here caused offer collisions.
 
   const toggleVideoEnabled = useCallback(() => {
     toggleVideo(!isVideoEnabled);
