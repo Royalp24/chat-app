@@ -74,8 +74,17 @@ class SessionManager {
     }
 
     // Check if username already exists in session
-    if (session.participants.some((p) => p.username === username)) {
-      return { success: false, error: 'USERNAME_TAKEN' };
+    // If the same user is reconnecting (e.g., after a dropped connection or page refresh),
+    // remove the stale entry so they can rejoin cleanly instead of getting blocked.
+    const existingIndex = session.participants.findIndex((p) => p.username === username);
+    if (existingIndex !== -1) {
+      // If this is the session creator trying to rejoin, block it
+      // (creator rejoining is handled as a hard error; they should end & recreate).
+      if (session.createdBy === username) {
+        return { success: false, error: 'USERNAME_TAKEN' };
+      }
+      // Otherwise it's a guest reconnecting — remove stale entry and allow rejoin
+      session.participants.splice(existingIndex, 1);
     }
 
     // Add participant
