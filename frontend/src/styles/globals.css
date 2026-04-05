@@ -1,17 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 :root {
-  /* Colors */
-  --primary: #0F3A7D;
-  --secondary: #2ECC71;
-  --accent: #E74C3C;
-  --background-light: #F8F9FA;
-  --background-dark: #1A1A1A;
-  --text-dark: #2C3E50;
-  --text-light: #ECF0F1;
-  --border-light: #E0E0E0;
-  --border-dark: #333333;
-  --success: #27AE60;
+  /* EphemChat Colour Theme */
+  --primary: #243A5A;
+  --secondary: #27C3A8;
+  --accent: #6EE7DA;
+  --background-light: #D1D6DC;
+  --background-dark: #2B2B2B;
+  --text-dark: #2B2B2B;
+  --text-light: #D1D6DC;
+  --border-light: #c8cdd3;
+  --border-dark: #1e2d42;
+  --success: #27C3A8;
   --warning: #F39C12;
-  --info: #3498DB;
+  --info: #6EE7DA;
   --error: #E74C3C;
 
   /* Spacing */
@@ -52,8 +54,7 @@ body,
 #root {
   width: 100%;
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -112,7 +113,7 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: #0a2854;
+  background-color: #1b4d7a;
   box-shadow: var(--shadow-md);
 }
 
@@ -126,7 +127,7 @@ body {
 }
 
 .btn-secondary:hover {
-  background-color: #27ae60;
+  background-color: #1fa896;
   box-shadow: var(--shadow-md);
 }
 
