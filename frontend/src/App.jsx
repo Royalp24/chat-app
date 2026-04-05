@@ -12,7 +12,30 @@ const STORAGE_KEY = 'chatapp_session';
 
 function App() {
   const { socket, isConnected, emit } = useSocket();
-  const [currentScreen, setCurrentScreen] = useState('landing');
+  const [_currentScreen, _setCurrentScreen] = useState('landing');
+
+  // Sync internal screens with browser history
+  useEffect(() => {
+    window.history.replaceState({ screen: 'landing' }, '', window.location.pathname);
+
+    const handlePopState = (e) => {
+      if (e.state && e.state.screen) {
+        _setCurrentScreen(e.state.screen);
+      } else {
+        _setCurrentScreen('landing');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const currentScreen = _currentScreen;
+  const setCurrentScreen = useCallback((screen) => {
+    if (screen !== _currentScreen) {
+      window.history.pushState({ screen }, '', `#${screen}`);
+      _setCurrentScreen(screen);
+    }
+  }, [_currentScreen]);
   const [sessionCode, setSessionCode] = useState('');
   const [username, setUsername] = useState('');
   const [isCreator, setIsCreator] = useState(false);
