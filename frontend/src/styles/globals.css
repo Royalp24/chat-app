@@ -143,13 +143,13 @@ body {
 
 .btn-outline {
   background-color: transparent;
-  border: 2px solid var(--primary);
-  color: var(--primary);
+  border: 2px solid var(--accent);
+  color: var(--accent);
 }
 
 .btn-outline:hover {
-  background-color: var(--primary);
-  color: white;
+  background-color: rgba(110, 231, 218, 0.1);
+  color: var(--accent);
 }
 
 .btn-sm {
