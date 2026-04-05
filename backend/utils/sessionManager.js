@@ -134,8 +134,9 @@ class SessionManager {
       session.reconnectTimer = null;
     }
 
-    // Mark creator back online and re-add to participants
+    // Mark creator back online; remove any stale entry first (race-condition safety)
     session.creator.isOnline = true;
+    session.participants = session.participants.filter((p) => p.username !== username);
     session.participants.push({ username, joinedAt: new Date(), isOnline: true });
     return session;
   }

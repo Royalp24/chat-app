@@ -143,7 +143,6 @@ io.on('connection', (socket) => {
       if (
         existingSession &&
         existingSession.createdBy === username &&
-        !existingSession.creator.isOnline &&
         existingSession.status === 'active'
       ) {
         const session = sessionManager.allowCreatorRejoin(code, username);

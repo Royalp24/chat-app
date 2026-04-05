@@ -102,10 +102,13 @@ function App() {
     const handleError = (data) => {
       // If rejoining failed, clear stored session and go to landing
       if (isRejoiningRef.current) {
+        // Auto-rejoin failed silently — clear stale data and go to landing
         clearSession();
         hasRejoinedRef.current = false;
         isRejoiningRef.current = false;
         setCurrentScreen('landing');
+        setIsLoading(false);
+        return;
       }
       setError(data.message || 'An error occurred');
       setIsLoading(false);
