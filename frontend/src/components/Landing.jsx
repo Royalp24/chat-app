@@ -24,10 +24,7 @@ export default function Landing({ onCreateClick, onJoinClick }) {
             Join.<br />Chat.<br />
             <span className="ec-hero-accent">Disappear.</span>
           </h1>
-          <p className="ec-hero-sub">
-            Secure, invite-only conversations that vanish the moment the session ends.
-            No accounts. No history. No trace.
-          </p>
+
         </div>
 
         {/* Decorative glow orbs */}

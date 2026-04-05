@@ -1,18 +1,21 @@
 .form-container {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #0F3A7D 0%, #2ECC71 100%);
+  background: linear-gradient(160deg, #192b44 0%, #243A5A 40%, #1e2e44 70%, #2B2B2B 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-lg);
   min-height: 100vh;
+  color: #ffffff;
 }
 
 .form-card {
-  background: white;
+  background: rgba(36, 58, 90, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(110, 231, 218, 0.2);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
   padding: var(--spacing-2xl);
   max-width: 450px;
   width: 100%;
@@ -25,20 +28,22 @@
 }
 
 .form-icon {
-  font-size: 3rem;
+  font-size: 3.5rem;
   display: block;
   margin-bottom: var(--spacing-md);
+  filter: drop-shadow(0 0 10px rgba(39, 195, 168, 0.4));
 }
 
 .form-header h2 {
   font-size: 1.8rem;
-  color: var(--primary);
+  color: #ffffff;
   margin-bottom: var(--spacing-sm);
   font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .form-header p {
-  color: #666;
+  color: #D1D6DC;
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -57,28 +62,50 @@
 
 .form-group label {
   font-weight: 600;
-  color: var(--text-dark);
+  color: #ffffff;
   font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+.form-group input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(110, 231, 218, 0.3);
+  color: #ffffff;
+}
+
+.form-group input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #6EE7DA;
+  box-shadow: 0 0 0 3px rgba(110, 231, 218, 0.15);
+}
+
+.form-group input::placeholder {
+  color: rgba(209, 214, 220, 0.5);
 }
 
 .form-group input:disabled {
-  background-color: #f0f0f0;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
   cursor: not-allowed;
 }
 
 .input-hint {
   font-size: 0.8rem;
-  color: #999;
+  color: #8a9aaa;
+  margin-top: 2px;
 }
 
 .form-info {
   text-align: center;
-  font-size: 0.9rem;
-  color: #666;
-  padding: var(--spacing-md);
-  background-color: #f8f9fa;
+  font-size: 0.85rem;
+  color: #D1D6DC;
+  padding: 1rem;
+  background: rgba(43, 43, 43, 0.6);
+  border: 1px solid rgba(110, 231, 218, 0.1);
   border-radius: var(--radius-md);
   margin-top: var(--spacing-md);
+  line-height: 1.5;
 }
 
 /* Spinner */
