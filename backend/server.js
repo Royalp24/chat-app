@@ -138,6 +138,41 @@ io.on('connection', (socket) => {
     }
 
     try {
+      // ---- Creator rejoin during grace period ----
+      const existingSession = sessionManager.getSession(code);
+      if (
+        existingSession &&
+        existingSession.createdBy === username &&
+        !existingSession.creator.isOnline &&
+        existingSession.status === 'active'
+      ) {
+        const session = sessionManager.allowCreatorRejoin(code, username);
+        if (session) {
+          userSessions.set(socket.id, { code, username });
+          socket.join(code);
+          startInactivityTimer(code);
+
+          const sessionData = sessionManager.getSessionData(code);
+          console.log(`[REJOIN] Creator ${username} rejoined session ${code}`);
+
+          // Restore full state to the creator
+          socket.emit(SOCKET_EVENTS.SESSION_CREATED, {
+            code,
+            participants: session.participants.map((p) => p.username),
+            isCreator: true,
+            chatHistory: sessionData.messages,
+          });
+
+          // Inform other participants
+          socket.to(code).emit(SOCKET_EVENTS.USER_JOINED, {
+            username,
+            participants: session.participants.map((p) => p.username),
+          });
+          return;
+        }
+      }
+
+      // ---- Normal join ----
       const result = sessionManager.joinSession(code, username);
 
       if (!result.success) {
@@ -651,17 +686,38 @@ io.on('connection', (socket) => {
       const { code, username } = userSession;
       console.log(`[DISCONNECT] ${username} disconnected from session ${code}`);
 
-      const result = sessionManager.removeParticipant(code, username);
+      // Use graceful=true so creator gets a 30s grace period instead of instant close
+      const result = sessionManager.removeParticipant(code, username, true);
 
-      if (result === 'SESSION_CLOSED') {
+      if (result === 'CREATOR_OFFLINE') {
+        // Start a 30-second grace period — if creator doesn't reconnect, close session
+        const session = sessionManager.getSession(code);
+        if (session) {
+          session.reconnectTimer = setTimeout(() => {
+            const s = sessionManager.getSession(code);
+            if (s && !s.creator.isOnline && s.status === 'active') {
+              console.log(`[AUTO-CLOSE] Session ${code} closed — creator did not reconnect`);
+              sessionManager.closeSession(code, 'CREATOR_DISCONNECTED');
+              io.to(code).emit(SOCKET_EVENTS.SESSION_CLOSED, {
+                reason: 'CREATOR_DISCONNECTED',
+                message: 'Session creator disconnected',
+              });
+            }
+          }, 30000);
+        }
+        // Notify guests that creator temporarily left
+        io.to(code).emit(SOCKET_EVENTS.USER_LEFT, { username });
+      } else if (result === 'SESSION_CLOSED') {
+        // Shouldn't normally happen with graceful=true for creator, but handle it
         console.log(`[AUTO-CLOSE] Session ${code} closed - creator disconnected`);
         io.to(code).emit(SOCKET_EVENTS.SESSION_CLOSED, {
           reason: 'CREATOR_DISCONNECTED',
           message: 'Session creator disconnected',
         });
       } else {
+        // Normal guest disconnect
         startInactivityTimer(code);
-        
+
         if (callManager.isInCall(code)) {
           callManager.removeParticipant(code, username);
           const call = callManager.getCall(code);
@@ -676,10 +732,8 @@ io.on('connection', (socket) => {
             });
           }
         }
-        
-        io.to(code).emit(SOCKET_EVENTS.USER_LEFT, {
-          username,
-        });
+
+        io.to(code).emit(SOCKET_EVENTS.USER_LEFT, { username });
       }
 
       // Clean up typing status

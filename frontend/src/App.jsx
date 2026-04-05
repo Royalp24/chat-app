@@ -34,7 +34,7 @@ function App() {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  // Try to rejoin existing session on page load (guests only)
+  // Try to rejoin existing session on page load
   useEffect(() => {
     if (!socket || !isConnected || hasRejoinedRef.current) return;
 
@@ -50,19 +50,16 @@ function App() {
         return;
       }
 
-      if (storedCode && storedName && !storedCreator) {
-        // Only rejoin for guests, not creators
-        console.log('[APP] Found existing guest session, rejoining:', storedCode);
+      if (storedCode && storedName) {
+        // Rejoin for both creator and guest
+        console.log('[APP] Found existing session, rejoining:', storedCode, '(creator:', storedCreator, ')');
         hasRejoinedRef.current = true;
         isRejoiningRef.current = true;
         setIsLoading(true);
         setSessionCode(storedCode);
         setUsername(storedName);
-        setIsCreator(false);
+        setIsCreator(storedCreator);
         emit(SOCKET_EVENTS.JOIN_SESSION, { code: storedCode, username: storedName });
-      } else if (storedCreator) {
-        // For creators, just clear the old session (can't rejoin ephemeral session)
-        clearSession();
       }
     } catch (e) {
       console.error('[APP] Error parsing stored session:', e);
@@ -78,6 +75,7 @@ function App() {
       setIsCreator(true);
       setCurrentScreen('chat');
       setIsLoading(false);
+      isRejoiningRef.current = false;  // covers creator-rejoin path
       saveSession(data.code, username, true);
     };
 

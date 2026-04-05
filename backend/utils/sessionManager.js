@@ -100,19 +100,44 @@ class SessionManager {
   /**
    * Remove participant from session
    */
-  removeParticipant(code, username) {
+  removeParticipant(code, username, graceful = false) {
     const session = this.sessions.get(code);
     if (!session) return false;
 
     session.participants = session.participants.filter((p) => p.username !== username);
 
-    // If creator leaves, close session
+    // If creator leaves
     if (session.creator.username === username) {
+      if (graceful) {
+        // Don't close yet — mark offline and let caller start a grace-period timer
+        session.creator.isOnline = false;
+        return 'CREATOR_OFFLINE';
+      }
       this.closeSession(code, 'CREATOR_LEFT');
       return 'SESSION_CLOSED';
     }
 
     return true;
+  }
+
+  /**
+   * Allow creator to rejoin during the grace period
+   */
+  allowCreatorRejoin(code, username) {
+    const session = this.sessions.get(code);
+    if (!session || session.createdBy !== username) return null;
+    if (session.status !== 'active') return null;
+
+    // Cancel the grace-period close timer
+    if (session.reconnectTimer) {
+      clearTimeout(session.reconnectTimer);
+      session.reconnectTimer = null;
+    }
+
+    // Mark creator back online and re-add to participants
+    session.creator.isOnline = true;
+    session.participants.push({ username, joinedAt: new Date(), isOnline: true });
+    return session;
   }
 
   /**

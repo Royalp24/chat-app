@@ -91,10 +91,10 @@
   overflow: hidden;
 }
 
-.participant-name {
+.participant-username {
   font-size: 0.88rem;
   font-weight: 500;
-  color: #1a1a2e;               /* explicit dark color — no CSS-var needed */
+  color: #1a1a2e;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;

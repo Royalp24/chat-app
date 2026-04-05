@@ -94,6 +94,9 @@ function ChatRoomContent({
       if (data.participants) {
         setParticipants(data.participants);
       }
+      if (data.chatHistory) {
+        setMessages(data.chatHistory);
+      }
     };
 
     const handleUserLeft = (data) => {

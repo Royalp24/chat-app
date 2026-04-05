@@ -20,7 +20,7 @@ export default function ParticipantList({ participants, currentUser }) {
               {getInitials(participant)}
             </div>
             <div className="participant-info">
-              <p className="participant-name">{participant}</p>
+              <p className="participant-username">{participant}</p>
               {isCurrentUser && <span className="current-badge">You</span>}
             </div>
             <div className="participant-status">
