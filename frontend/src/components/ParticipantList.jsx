@@ -15,7 +15,6 @@ export default function ParticipantList({ participants, currentUser }) {
           <div
             key={participant}
             className={`participant-item ${isCurrentUser ? 'current' : ''}`}
-            title={participant}
           >
             <div className="participant-avatar" style={{ backgroundColor: bgColor }}>
               {getInitials(participant)}

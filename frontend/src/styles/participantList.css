@@ -83,22 +83,24 @@
 }
 
 .participant-info {
-  flex: 1;
-  min-width: 0;                 /* allows text-overflow to work */
+  flex: 1 1 0;                  /* grow & shrink, zero basis so name isn't squeezed */
+  min-width: 0;                 /* critical: allows text-overflow to work */
   display: flex;
   flex-direction: column;
   gap: 2px;
+  overflow: hidden;
 }
 
 .participant-name {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
-  color: var(--text-dark);
+  color: #1a1a2e;               /* explicit dark color — no CSS-var needed */
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
+  width: 100%;
+  display: block;
 }
 
 .current-badge {

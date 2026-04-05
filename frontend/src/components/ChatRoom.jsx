@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSocket } from '../hooks/useSocket.jsx';
 import { SOCKET_EVENTS } from '../utils/socketEvents';
 import { downloadFile } from '../utils/formatting';
@@ -239,7 +239,7 @@ function ChatRoomContent({
       <div className="chat-header">
         <div className="header-left">
           <h1 className="session-title">
-            {username}'s Session
+            {username}
           </h1>
           <p className="session-role">{isCreator ? '👑 Creator' : '👤 Guest'}</p>
           <p className="session-code">Code: {sessionCode}</p>
