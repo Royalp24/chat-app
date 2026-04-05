@@ -19,6 +19,11 @@ function App() {
     window.history.replaceState({ screen: 'landing' }, '', window.location.pathname);
 
     const handlePopState = (e) => {
+      if (typeof window.onpopstateOverride === 'function') {
+        window.onpopstateOverride(e);
+        return;
+      }
+
       if (e.state && e.state.screen) {
         _setCurrentScreen(e.state.screen);
       } else {

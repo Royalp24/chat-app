@@ -42,6 +42,25 @@ function ChatRoomContent({
   }, [messages, typingUsers]);
 
   useEffect(() => {
+    window.onpopstateOverride = (e) => {
+      // Once popstate fires, the URL has mutated. Manually push it back so they stay here until confirmed.
+      window.history.pushState({ screen: 'chat' }, '', '#chat');
+      
+      if (isCreator) {
+        setShowConfirmEnd(true);
+      } else {
+        if (window.confirm('Leave this chat session?')) {
+          onSessionClose();
+        }
+      }
+    };
+
+    return () => {
+      window.onpopstateOverride = null;
+    };
+  }, [isCreator, onSessionClose]);
+
+  useEffect(() => {
     if (!socket) return;
 
     const handleMessageReceived = (message) => {
@@ -329,13 +348,15 @@ function ChatRoomContent({
       </div>
 
       <div className="chat-footer">
-        <button
-          className="btn btn-outline"
-          onClick={handleLeaveSession}
-          disabled={isClosing}
-        >
-          Leave
-        </button>
+        {!isCreator && (
+          <button
+            className="btn btn-outline"
+            onClick={handleLeaveSession}
+            disabled={isClosing}
+          >
+            Leave
+          </button>
+        )}
         {isCreator && (
           <button
             className="btn btn-danger"
