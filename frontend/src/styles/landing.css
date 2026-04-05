@@ -13,6 +13,7 @@
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   color: #D1D6DC;
   overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
 }
 
