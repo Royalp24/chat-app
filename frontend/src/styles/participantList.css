@@ -2,8 +2,8 @@
 .participants-sidebar {
   width: 220px;
   min-width: 180px;
-  background-color: #fafbfc;
-  border-right: 1px solid var(--border-light);
+  background-color: #1e2e44;
+  border-right: 1px solid rgba(110, 231, 218, 0.15);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -12,7 +12,7 @@
 
 .participants-header {
   padding: var(--spacing-lg);
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid rgba(110, 231, 218, 0.15);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -22,14 +22,14 @@
 .participants-header h3 {
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--primary);
+  color: #6EE7DA;
   margin: 0;
   white-space: nowrap;
 }
 
 .participant-count {
-  background-color: var(--primary);
-  color: white;
+  background-color: #27C3A8;
+  color: #192b44;
   padding: 2px 8px;
   border-radius: var(--radius-full);
   font-size: 0.8rem;
@@ -60,12 +60,12 @@
 }
 
 .participant-item:hover {
-  background-color: rgba(15, 58, 125, 0.05);
+  background-color: rgba(110, 231, 218, 0.1);
 }
 
 .participant-item.current {
-  background-color: rgba(15, 58, 125, 0.1);
-  border-left: 3px solid var(--primary);
+  background-color: rgba(39, 195, 168, 0.15);
+  border-left: 3px solid #6EE7DA;
 }
 
 .participant-avatar {
@@ -94,7 +94,7 @@
 .participant-username {
   font-size: 0.88rem;
   font-weight: 500;
-  color: #1a1a2e;
+  color: #D1D6DC;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;

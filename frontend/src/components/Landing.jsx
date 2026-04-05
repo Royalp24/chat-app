@@ -16,21 +16,7 @@ export default function Landing({ onCreateClick, onJoinClick }) {
         </div>
       </nav>
 
-      {/* ── Hero ── */}
-      <header className="ec-hero">
-        <div className="ec-hero-inner">
-          <div className="ec-hero-badge">✦ Ephemeral &nbsp;·&nbsp; Private &nbsp;·&nbsp; Real-Time</div>
-          <h1 className="ec-hero-title">
-            Join.<br />Chat.<br />
-            <span className="ec-hero-accent">Disappear.</span>
-          </h1>
 
-        </div>
-
-        {/* Decorative glow orbs */}
-        <div className="ec-orb ec-orb-1" />
-        <div className="ec-orb ec-orb-2" />
-      </header>
 
       {/* ── Features Grid ── */}
       <section className="ec-features-section">
