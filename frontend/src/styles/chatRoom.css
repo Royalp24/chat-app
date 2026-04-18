@@ -48,7 +48,13 @@
   box-shadow: var(--shadow-md);
   gap: var(--spacing-md);
   flex-shrink: 0;
+  flex-wrap: wrap;
   z-index: 10;
+}
+
+/* Participant button in header — hidden on desktop, shown on mobile */
+.header-participants-btn {
+  display: none;
 }
 
 .header-left {
@@ -141,7 +147,6 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   background-color: transparent;
-  position: relative;
 }
 
 .empty-state {
@@ -343,6 +348,36 @@
 
   .hide-mobile {
     display: none;
+  }
+
+  .header-participants-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    background: rgba(110, 231, 218, 0.1);
+    border: 1px solid rgba(110, 231, 218, 0.2);
+    color: #6EE7DA;
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .header-participants-btn:hover {
+    background: rgba(110, 231, 218, 0.2);
+  }
+
+  .header-participants-btn .toggle-count {
+    background: #27C3A8;
+    color: #192b44;
+    padding: 1px 7px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-left: auto;
   }
 }
 

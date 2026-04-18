@@ -1,10 +1,7 @@
-import { useState } from 'react';
 import { getInitials, generateColorFromUsername } from '../utils/formatting';
 import '../styles/participantList.css';
 
-export default function ParticipantList({ participants, currentUser }) {
-  const [isOpen, setIsOpen] = useState(false);
-
+export default function ParticipantList({ participants, currentUser, mobileOpen, onMobileClose }) {
   const listContent = (
     <div className="participants-list">
       {participants.map((participant) => {
@@ -43,19 +40,9 @@ export default function ParticipantList({ participants, currentUser }) {
         {listContent}
       </div>
 
-      {/* Mobile: floating toggle button */}
-      <button
-        className="participants-toggle-btn"
-        onClick={() => setIsOpen((prev) => !prev)}
-        aria-label="Toggle participant list"
-        title="Participants"
-      >
-        👥 <span className="toggle-count">{participants.length}</span>
-      </button>
-
-      {/* Mobile: slide-in drawer */}
-      {isOpen && (
-        <div className="participants-drawer-overlay" onClick={() => setIsOpen(false)}>
+      {/* Mobile: slide-in drawer (controlled by parent) */}
+      {mobileOpen && (
+        <div className="participants-drawer-overlay" onClick={onMobileClose}>
           <div
             className="participants-drawer"
             onClick={(e) => e.stopPropagation()}
@@ -66,7 +53,7 @@ export default function ParticipantList({ participants, currentUser }) {
                 <span className="participant-count">{participants.length}</span>
                 <button
                   className="drawer-close-btn"
-                  onClick={() => setIsOpen(false)}
+                  onClick={onMobileClose}
                   aria-label="Close participant list"
                 >
                   ✕

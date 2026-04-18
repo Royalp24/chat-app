@@ -33,21 +33,26 @@ function ChatRoomContent({
   const [isClosing, setIsClosing] = useState(false);
   const [showDownloadPrompt, setShowDownloadPrompt] = useState(false);
   const [showConfirmEnd, setShowConfirmEnd] = useState(false);
+  const [showParticipants, setShowParticipants] = useState(false);
 
   // WhatsApp-style viewport handling: keep header + input pinned,
   // only shrink the messages area when the mobile keyboard opens.
   useEffect(() => {
+    // Set dark background on body so no white gap shows behind keyboard
+    const originalBg = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = '#1a2235';
+
     const vv = window.visualViewport;
     if (!vv) return;
 
     const updateHeight = () => {
-      // vv.height = the visible area (shrinks when keyboard is open)
-      // vv.offsetTop = how far the viewport has scrolled down
-      document.documentElement.style.setProperty(
-        '--app-height',
-        `${vv.height}px`
-      );
-      // Scroll the page so the fixed container stays at viewport top
+      const h = vv.height;
+      document.documentElement.style.setProperty('--app-height', `${h}px`);
+      // Prevent body scroll and white gap behind keyboard
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = `${h}px`;
+      document.documentElement.style.overflow = 'hidden';
+      document.documentElement.style.height = `${h}px`;
       window.scrollTo(0, 0);
     };
 
@@ -58,6 +63,11 @@ function ChatRoomContent({
     return () => {
       vv.removeEventListener('resize', updateHeight);
       vv.removeEventListener('scroll', updateHeight);
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+      document.body.style.backgroundColor = originalBg;
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.height = '';
     };
   }, []);
 
@@ -332,10 +342,22 @@ function ChatRoomContent({
           </div>
           {error && <div className="header-error">{error}</div>}
         </div>
+        {/* Mobile-only second row: participant button */}
+        <button
+          className="header-participants-btn"
+          onClick={() => setShowParticipants(prev => !prev)}
+        >
+          👥 Participants <span className="toggle-count">{participants.length}</span>
+        </button>
       </div>
 
       <div className="chat-container">
-        <ParticipantList participants={participants} currentUser={username} />
+        <ParticipantList
+          participants={participants}
+          currentUser={username}
+          mobileOpen={showParticipants}
+          onMobileClose={() => setShowParticipants(false)}
+        />
 
         <div className="chat-main">
           <div className="messages-area">
