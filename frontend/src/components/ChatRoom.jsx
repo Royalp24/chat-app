@@ -368,8 +368,6 @@ function ChatRoomContent({
         </div>
       </div>
 
-      </div>
-
       {showDownloadPrompt && isCreator && (
         <div className="modal-overlay">
           <div className="modal-content">
