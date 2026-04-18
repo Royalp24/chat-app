@@ -22,6 +22,7 @@ function ChatRoomContent({
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const chatRoomRef = useRef(null);
 
   const [messages, setMessages] = useState([]);
   const [participants, setParticipants] = useState(isCreator ? [username] : []);
@@ -32,6 +33,33 @@ function ChatRoomContent({
   const [isClosing, setIsClosing] = useState(false);
   const [showDownloadPrompt, setShowDownloadPrompt] = useState(false);
   const [showConfirmEnd, setShowConfirmEnd] = useState(false);
+
+  // WhatsApp-style viewport handling: keep header + input pinned,
+  // only shrink the messages area when the mobile keyboard opens.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const updateHeight = () => {
+      // vv.height = the visible area (shrinks when keyboard is open)
+      // vv.offsetTop = how far the viewport has scrolled down
+      document.documentElement.style.setProperty(
+        '--app-height',
+        `${vv.height}px`
+      );
+      // Scroll the page so the fixed container stays at viewport top
+      window.scrollTo(0, 0);
+    };
+
+    updateHeight();
+    vv.addEventListener('resize', updateHeight);
+    vv.addEventListener('scroll', updateHeight);
+
+    return () => {
+      vv.removeEventListener('resize', updateHeight);
+      vv.removeEventListener('scroll', updateHeight);
+    };
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -257,7 +285,7 @@ function ChatRoomContent({
   const isInCall = callState === 'connected' || callState === 'calling';
 
   return (
-    <div className={`chat-room ${isInCall ? 'in-call' : ''}`}>
+    <div ref={chatRoomRef} className={`chat-room ${isInCall ? 'in-call' : ''}`}>
       <div className="chat-header">
         <div className="header-left">
           <h1 className="session-title">

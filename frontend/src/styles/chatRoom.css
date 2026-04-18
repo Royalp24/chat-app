@@ -1,9 +1,11 @@
 .chat-room {
   width: 100%;
   height: 100%;
+  height: var(--app-height, 100%);
   display: flex;
   flex-direction: column;
   background-color: #1a2235;
+  overflow: hidden;
 }
 
 .chat-room.in-call {
@@ -36,16 +38,17 @@
 
 /* Header */
 .chat-header {
-  background: rgba(36, 58, 90, 0.9);
+  background: rgba(36, 58, 90, 0.95);
   backdrop-filter: blur(10px);
   color: white;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: var(--shadow-md);
-  gap: var(--spacing-xl);
-  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+  z-index: 10;
 }
 
 .header-left {
@@ -138,6 +141,7 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   background-color: transparent;
+  position: relative;
 }
 
 .empty-state {
@@ -180,11 +184,11 @@
   font-weight: 500;
 }
 
-/* Message Input Area */
 .message-input-area {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-md);
   border-top: 1px solid rgba(110, 231, 218, 0.15);
   background-color: rgba(36, 58, 90, 0.4);
+  flex-shrink: 0;
 }
 
 .message-form {
@@ -293,65 +297,98 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .chat-header {
-    flex-direction: column;
-    align-items: flex-start;
+  .chat-room {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--app-height, 100%);
   }
 
-  .header-right {
-    width: 100%;
-    margin-left: 0;
-    margin-top: var(--spacing-md);
+  .chat-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  .header-left {
+    gap: var(--spacing-sm);
   }
 
   .session-title {
-    font-size: 1.3rem;
+    font-size: 1rem;
+  }
+
+  .session-role,
+  .session-code {
+    font-size: 0.75rem;
+  }
+
+  .header-right {
+    gap: var(--spacing-sm);
+    margin-left: auto;
   }
 
   .messages-area {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
   }
 
   .message-input-area {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
   }
 
   .modal-content {
     padding: var(--spacing-lg);
   }
-}
-
-@media (max-width: 480px) {
-  .chat-header {
-    padding: var(--spacing-md);
-  }
-
-  .session-title {
-    font-size: 1.1rem;
-  }
-
-  .messages-area {
-    padding: var(--spacing-md);
-  }
-
-  .message-form {
-    gap: var(--spacing-sm);
-  }
-
-  .btn-send {
-    padding: var(--spacing-sm);
-    min-width: 60px;
-  }
-
-  .modal-content {
-    max-width: 90%;
-  }
 
   .hide-mobile {
     display: none;
   }
+}
 
-  .header-actions {
-    margin-left: auto;
+@media (max-width: 480px) {
+  .chat-header {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .session-title {
+    font-size: 0.9rem;
+  }
+
+  .session-role {
+    display: none;
+  }
+
+  .message-form {
+    gap: var(--spacing-xs);
+  }
+
+  .message-input {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .btn-send {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    min-width: 50px;
+    font-size: 0.85rem;
+  }
+
+  .input-length {
+    display: none;
+  }
+
+  .modal-content {
+    max-width: 95%;
+    padding: var(--spacing-md);
+  }
+
+  .call-btn-header {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  .header-actions .btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.8rem;
   }
 }
