@@ -274,12 +274,33 @@ function ChatRoomContent({
               disabled={callState !== 'idle'}
             >
               <span>📞</span>
-              Start Call
+              <span className="hide-mobile">Start Call</span>
             </button>
           )}
           <div className="connection-status connected">
             <span className="status-dot"></span>
-            Connected
+            <span className="hide-mobile">Connected</span>
+          </div>
+          
+          <div className="header-actions">
+            {!isCreator && (
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={handleLeaveSession}
+                disabled={isClosing}
+              >
+                Leave
+              </button>
+            )}
+            {isCreator && (
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={handleEndSession}
+                disabled={isClosing}
+              >
+                End Session
+              </button>
+            )}
           </div>
           {error && <div className="header-error">{error}</div>}
         </div>
@@ -347,25 +368,6 @@ function ChatRoomContent({
         </div>
       </div>
 
-      <div className="chat-footer">
-        {!isCreator && (
-          <button
-            className="btn btn-outline"
-            onClick={handleLeaveSession}
-            disabled={isClosing}
-          >
-            Leave
-          </button>
-        )}
-        {isCreator && (
-          <button
-            className="btn btn-danger"
-            onClick={handleEndSession}
-            disabled={isClosing}
-          >
-            End Session
-          </button>
-        )}
       </div>
 
       {showDownloadPrompt && isCreator && (
