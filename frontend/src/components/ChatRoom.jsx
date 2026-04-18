@@ -38,36 +38,36 @@ function ChatRoomContent({
   // WhatsApp-style viewport handling: keep header + input pinned,
   // only shrink the messages area when the mobile keyboard opens.
   useEffect(() => {
-    // Set dark background on body so no white gap shows behind keyboard
+    // Dark body background so no white gap shows
     const originalBg = document.body.style.backgroundColor;
     document.body.style.backgroundColor = '#1a2235';
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
 
     const vv = window.visualViewport;
     if (!vv) return;
 
-    const updateHeight = () => {
-      const h = vv.height;
-      document.documentElement.style.setProperty('--app-height', `${h}px`);
-      // Prevent body scroll and white gap behind keyboard
-      document.body.style.overflow = 'hidden';
-      document.body.style.height = `${h}px`;
-      document.documentElement.style.overflow = 'hidden';
-      document.documentElement.style.height = `${h}px`;
+    const update = () => {
+      const el = chatRoomRef.current;
+      if (!el) return;
+      // Set height to exactly the visible viewport
+      el.style.height = `${vv.height}px`;
+      // Offset the container to match where the visual viewport starts
+      el.style.top = `${vv.offsetTop}px`;
+      // Prevent any page scrolling
       window.scrollTo(0, 0);
     };
 
-    updateHeight();
-    vv.addEventListener('resize', updateHeight);
-    vv.addEventListener('scroll', updateHeight);
+    update();
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
 
     return () => {
-      vv.removeEventListener('resize', updateHeight);
-      vv.removeEventListener('scroll', updateHeight);
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
       document.body.style.overflow = '';
-      document.body.style.height = '';
       document.body.style.backgroundColor = originalBg;
       document.documentElement.style.overflow = '';
-      document.documentElement.style.height = '';
     };
   }, []);
 
@@ -305,6 +305,13 @@ function ChatRoomContent({
           <p className="session-code">Code: {sessionCode}</p>
         </div>
         <div className="header-right">
+          {/* Mobile-only compact participant pill */}
+          <button
+            className="header-participants-btn"
+            onClick={() => setShowParticipants(prev => !prev)}
+          >
+            👥 <span className="toggle-count">{participants.length}</span>
+          </button>
           {isCreator && (
             <button
               className="btn btn-primary call-btn-header"
@@ -342,13 +349,6 @@ function ChatRoomContent({
           </div>
           {error && <div className="header-error">{error}</div>}
         </div>
-        {/* Mobile-only second row: participant button */}
-        <button
-          className="header-participants-btn"
-          onClick={() => setShowParticipants(prev => !prev)}
-        >
-          👥 Participants <span className="toggle-count">{participants.length}</span>
-        </button>
       </div>
 
       <div className="chat-container">

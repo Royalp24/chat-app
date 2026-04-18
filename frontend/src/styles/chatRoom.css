@@ -1,7 +1,6 @@
 .chat-room {
   width: 100%;
   height: 100%;
-  height: var(--app-height, 100%);
   display: flex;
   flex-direction: column;
   background-color: #1a2235;
@@ -48,7 +47,6 @@
   box-shadow: var(--shadow-md);
   gap: var(--spacing-md);
   flex-shrink: 0;
-  flex-wrap: wrap;
   z-index: 10;
 }
 
@@ -307,8 +305,7 @@
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
-    height: var(--app-height, 100%);
+    /* height set by JS via visualViewport — no bottom:0 so it sizes from top */
   }
 
   .chat-header {
@@ -353,31 +350,28 @@
   .header-participants-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    width: 100%;
-    background: rgba(110, 231, 218, 0.1);
-    border: 1px solid rgba(110, 231, 218, 0.2);
+    gap: 4px;
+    background: rgba(36, 58, 90, 0.95);
+    border: 1px solid rgba(110, 231, 218, 0.3);
     color: #6EE7DA;
-    padding: 6px 12px;
-    border-radius: var(--radius-md);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     transition: background 0.2s;
   }
 
   .header-participants-btn:hover {
-    background: rgba(110, 231, 218, 0.2);
+    background: rgba(56, 88, 130, 0.95);
   }
 
   .header-participants-btn .toggle-count {
-    background: #27C3A8;
-    color: #192b44;
-    padding: 1px 7px;
+    background: rgba(255, 255, 255, 0.25);
+    padding: 1px 6px;
     border-radius: 12px;
     font-size: 0.8rem;
-    font-weight: 700;
-    margin-left: auto;
   }
 }
 
